@@ -15,6 +15,7 @@ from lib.RFExplorerComm import RFExplorerComm
 #---------------------------------------------------------
 
 BAUDRATE = 500000
+DURATION = 60
 FREQ_CENTER = 868.1
 FREQ_SPAN = 11.2
 DBM_MIN = -120
@@ -43,7 +44,7 @@ Plot range of frequencies in real time
     parser.add_argument("-r", dest="reset", help="reset RF Explorer", action='store_true')
     parser.add_argument("-c", dest="freq_center", type=float, help="frequency center", default=FREQ_CENTER)
     parser.add_argument("-s", dest="freq_span", type=float, help="frequency span", default=FREQ_SPAN)
-    parser.add_argument("-d", dest="duration", type=int, help="monitor for these many seconds", default=60)
+    parser.add_argument("-d", dest="duration", type=int, help="monitor for these many seconds", default=DURATION)
     parser.add_argument("-p", dest="port", help="USB port to use, otherwise will try to find it", default=None)
     return parser.parse_args()
 
