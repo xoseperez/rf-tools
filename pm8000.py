@@ -41,7 +41,7 @@ Plot the amplitude in real time
     # Parse command line options
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, epilog=textwrap.dedent(epilog))
     parser.add_argument("-m", dest="mode", help="output mode", choices=['peak', 'plot'], default="peak")
-    parser.add_argument("-d", dest="duration", type=int, help="monitor for these many seconds", default=DURATION)
+    parser.add_argument("-d", dest="duration", type=int, help="monitor for these many seconds (0 for non-stop)", default=DURATION)
     parser.add_argument("-p", dest="port", help="USB port to use, otherwise will try to find it", default=None)
     return parser.parse_args()
 
@@ -157,7 +157,7 @@ try:
     pattern = re.compile("\$([\s0-9.-]+).*\$")
     startTime = time.time()
 
-    while ((time.time() - startTime) < args.duration):    
+    while ((args.duration == 0) or ((time.time() - startTime) < args.duration)):    
         line = ser.readline().decode('utf-8')
         result = pattern.match(line)
         if result:

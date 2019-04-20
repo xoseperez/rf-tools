@@ -44,7 +44,7 @@ Plot range of frequencies in real time
     parser.add_argument("-r", dest="reset", help="reset RF Explorer", action='store_true')
     parser.add_argument("-c", dest="freq_center", type=float, help="frequency center", default=FREQ_CENTER)
     parser.add_argument("-s", dest="freq_span", type=float, help="frequency span", default=FREQ_SPAN)
-    parser.add_argument("-d", dest="duration", type=int, help="monitor for these many seconds", default=DURATION)
+    parser.add_argument("-d", dest="duration", type=int, help="monitor for these many seconds (0 for non-stop)", default=DURATION)
     parser.add_argument("-p", dest="port", help="USB port to use, otherwise will try to find it", default=None)
     return parser.parse_args()
 
@@ -192,7 +192,7 @@ try:
             last = 0
             startTime = time.time()
 
-            while ((time.time() - startTime) < args.duration):    
+            while ((args.duration == 0) or ((time.time() - startTime) < args.duration)):    
 
                 # Process all received data from device 
                 objRFE.ProcessReceivedString(True)
