@@ -1,6 +1,6 @@
 # RF tools utils
 
-This repository is a script toolbox to interact with RF tools like the Power Monitor 8000 or the RF Explorer.
+This repository is a script toolbox to interact with RF tools like the RF Power Monitor 8000 or the RF Explorer.
 
 ## Installation
 
@@ -31,21 +31,24 @@ The Power Monitor 8000 is an RF power monitor with a wide range (up to 8GHz) and
 
 ![pm8000](images/pm8000.jpg)
 
-The `pm8000.py` script reads the data from the Power Monitor 8000 via USB port and dumps it in a CSV like style with a timestamp and the amplitude of the signal. Other values like the frequency or the offset are not reported by the device so they must be added by hand.
+The `pm8000.py` script reads the data from the Power Monitor 8000 via USB port and dumps it in a CSV like style with a timestamp and the amplitude of the signal. You can set the center frequency (integer, MHz) and offset (float, dB) form the command line.
 
 ```
-$ python pm8000.py
+$ python pm8000.py -f 169 -o -20.0
 timestamp,amplitude
-000041,-20.4
-000167,-13.4
-000293,-14.0
-000419,-8.6
-000545,-20.9
-000671,-25.6
-000796,-25.6
-000922,-23.9
-001048,-24.7
-001174,-25.6
+...
+002257,-72.4
+002383,-72.4
+002509,-72.4
+002635,-72.4
+002760,-72.4
+002886,-72.5
+003012,-72.4
+003138,-72.4
+003264,-72.5
+003389,-21.8
+003515,-72.4
+003641,-72.4
 ...
 ```
 
@@ -77,7 +80,7 @@ Monitor and print peaks from 862.5 to 873.7 for 60 seconds
 Plot range of frequencies in real time
     python rfexplorer.py -m plot
 
-(c) 2019 Xose Pérez (@xoseperez)
+(c) 2019-2021 Xose Pérez (@xoseperez)
 ```
 
 The three different modes have different outputs. The `peak` mode is the default one and it's equivalent to the one in the pm8000 script above:
