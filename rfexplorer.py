@@ -37,7 +37,7 @@ Monitor and print peaks from 862.5 to 873.7 for 60 seconds
 Plot range of frequencies in real time
     python {0} -m plot
 
-(c) 2019 Xose Pérez (@xoseperez)""".format(sys.argv[0])
+(c) 2019-2021 Xose Pérez (@xoseperez)""".format(sys.argv[0])
 
     # Parse command line options
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, epilog=textwrap.dedent(epilog))

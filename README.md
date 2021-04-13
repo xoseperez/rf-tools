@@ -165,7 +165,7 @@ Device serial number: B3A4EML7353958JE
 
 ## License
 
-Copyright (C) 2019 by Xose Pérez (@xoseperez)
+Copyright (C) 2019-2021 by Xose Pérez (@xoseperez)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
