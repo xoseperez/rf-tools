@@ -17,8 +17,10 @@ from lib.RFExplorerComm import RFExplorerComm
 
 BAUDRATE = 500000
 DURATION = 60
-FREQ_CENTER = 868.1
-FREQ_SPAN = 11.2
+FREQ_CENTER = 866.5
+FREQ_SPAN = 7.0
+FREQ_FROM = FREQ_CENTER - FREQ_SPAN / 2
+FREQ_TO = FREQ_CENTER + FREQ_SPAN / 2
 DBM_MIN = -120
 DBM_MAX = 0
 
@@ -31,20 +33,22 @@ def arguments():
     epilog = """
 Usage examples:
 
-Monitor and print peaks from 862.5 to 873.7 for 60 seconds
-    python {0} -c 868.1 -s 11.2 -t 60
+Monitor and print peaks from 863.0 to 870.0 for 60 seconds
+    python {0} -f 863 -t 870 -d 60
 
 Plot range of frequencies in real time
     python {0} -m plot
 
-(c) 2019-2021 Xose Pérez (@xoseperez)""".format(sys.argv[0])
+(c) 2019-2024 Xose Pérez (@xoseperez)""".format(sys.argv[0])
 
     # Parse command line options
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, epilog=textwrap.dedent(epilog))
     parser.add_argument("-m", dest="mode", help="output mode", choices=['peak', 'swipe', 'plot'], default="peak")
     parser.add_argument("-r", dest="reset", help="reset RF Explorer", action='store_true')
-    parser.add_argument("-c", dest="freq_center", type=float, help="frequency center", default=FREQ_CENTER)
+    parser.add_argument("-c", dest="freq_center", type=float, help="frequency center", default=None)
     parser.add_argument("-s", dest="freq_span", type=float, help="frequency span", default=FREQ_SPAN)
+    parser.add_argument("-f", dest="freq_from", type=float, help="frequency start", default=None)
+    parser.add_argument("-t", dest="freq_to", type=float, help="frequency start", default=None)
     parser.add_argument("-d", dest="duration", type=int, help="monitor for these many seconds (0 for non-stop)", default=DURATION)
     parser.add_argument("-p", dest="port", help="USB port to use, otherwise will try to find it", default=None)
     return parser.parse_args()
@@ -69,6 +73,12 @@ class RFEPrinter(object):
 
 class PrintPeak(RFEPrinter):
 
+    MM_SIZE = 10
+    ring = [0] * MM_SIZE
+    average = 0
+    position = 0
+
+
     def header(self):
         print("timestamp,frequency,amplitude")
     
@@ -79,7 +89,7 @@ class PrintPeak(RFEPrinter):
         fAmplitudeDBM = objSweepTemp.GetAmplitude_DBM(nStep)
         fCenterFreq = objSweepTemp.GetFrequencyMHZ(nStep)
         timestamp = int(1000 * (time.time() - self.start))
-        print("{0:06d},{1:.2f},{2:.1f}".format(timestamp, fCenterFreq, fAmplitudeDBM))
+        print("%06d,%.2f,%.1f" % (timestamp, fCenterFreq, fAmplitudeDBM))
 
 class PrintSwipe(RFEPrinter):
 
@@ -160,8 +170,20 @@ try:
     objRFE = RFExplorerComm()   
     objRFE.AutoConfigure = False
 
+    # Frequecy span
+    center = args.freq_center
+    span = args.freq_span
+    if not center:
+        start = args.freq_from or FREQ_FROM
+        end = args.freq_to or FREQ_TO
+        if end > start:
+            center = (start + end) / 2
+            span = end - start
+        else:
+            center = FREQ_CENTER
+
     # Connect
-    if objRFE.connect():    
+    if objRFE.connect(args.port, BAUDRATE):    
 
         # User requested a reset?
         if args.reset:
@@ -174,7 +196,7 @@ try:
         if (objRFE.IsAnalyzer()):     
 
             # Define frequency span
-            objRFE.range(args.freq_center, args.freq_span)
+            objRFE.range(center, span)
 
             # Get mode printer
             printer = None

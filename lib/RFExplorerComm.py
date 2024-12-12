@@ -5,6 +5,9 @@ import re
 import glob
 import time
 
+import serial.tools.list_ports
+import serial
+
 import RFExplorer
 
 class RFExplorerComm(RFExplorer.RFECommunicator):
@@ -41,9 +44,66 @@ class RFExplorerComm(RFExplorer.RFECommunicator):
 
         return devices
 
+    def IsConnectedPort(self, sPortName):
+        """True if it is possible connect to specific port, otherwise False 
+            
+        Parameters:
+            sPortName -- Serial port name, can take any form accepted by OS
+        Returns:
+            Boolean True if it is possible connect to specific port, otherwise False
+		"""
+        self.m_objSerialPort.baudrate = 500000
+        self.m_objSerialPort.port = sPortName
+        bOpen = False
+        try:
+            self.m_hSerialPortLock.acquire()
+            self.m_objSerialPort.open()
+        except Exception as obEx:
+            None
+        finally:
+            if(self.m_objSerialPort.is_open):
+                bOpen = True
+            self.m_objSerialPort.close()
+            self.m_hSerialPortLock.release()
+
+        return bOpen
+
+    def GetConnectedPorts(self):
+        """ Found the valid available serial port
+
+        Returns:
+            Boolean True if it found valid available serial port, False otherwise
+		"""
+        bOk = True
+        self.m_arrValidCP2102Ports = []
+
+        try:
+            self.m_arrConnectedPorts = list(serial.tools.list_ports.comports())
+            if(self.m_arrConnectedPorts):
+                for objPort in self.m_arrConnectedPorts:
+                    
+                    try:
+                        if (self.IsConnectedPort(objPort.device)):
+                            self.m_arrValidCP2102Ports.append(objPort)
+                    except:
+                        None
+                
+                if(len(self.m_arrValidCP2102Ports) > 0):
+                    print("RF Explorer Valid Ports found: " + str(len(self.m_arrValidCP2102Ports)) + " - " + ",".join([objPort.device for objPort in self.m_arrValidCP2102Ports]))
+                else:   
+                    print("Error: not found valid COM Ports") 
+                    bOk = False
+            else: 
+                print("Serial ports not detected")
+                bOk = False
+        except Exception as obEx:
+            print("Error scanning COM ports: " + str(obEx))
+            bOk = False   
+        
+        return bOk
+
     def connect(self, port = None, baudrate = 500000):
 
-        # Show valid serial ports
         self.GetConnectedPorts()
 
         # Find port
